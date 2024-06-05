@@ -16,101 +16,167 @@ const io = new Server(server, {
 });
 
 app.use(cors());
+
 app.get('/', (req, res) => {
     res.json('ip address: http://' + ip.address() + ':' + PORT);
 });
 
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
+const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu', 'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo', 'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo', 'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi', 'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're', 'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va', 've', 'vi', 'vo', 'vu'];
+
 let words = [];
 
-const generateValidLetters = async () => {
+const loadWords = async () => {
     const response = await fetch(wordAPI);
     words = await response.json();
     words = words.filter(word => word.length >= 5);
+};
 
-    let validLetters = '';
+const generateValidSyllable = () => {
+    let validSyllable = '';
     let found = false;
+
     while (!found) {
-        const letters = 'abcdefghijklmnopqrstuvwxyz';
-        const randomIndex1 = Math.floor(Math.random() * letters.length);
-        const randomIndex2 = Math.floor(Math.random() * letters.length);
-        validLetters = `${letters[randomIndex1]}${letters[randomIndex2]}`;
+        const randomIndex = Math.floor(Math.random() * syllables.length);
+        validSyllable = syllables[randomIndex];
 
         for (const word of words) {
-            if (word.includes(validLetters)) {
+            if (word.includes(validSyllable)) {
                 found = true;
                 break;
             }
         }
     }
-    return validLetters;
+    return validSyllable;
+};
+
+loadWords();
+
+const startTimer = (roomCode) => {
+    const room = rooms[roomCode];
+    if (!room) return;
+
+    if (room.timer) {
+        clearTimeout(room.timer);
+    }
+
+    const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+    room.timer = setTimeout(async () => {
+        room.users[room.currentPlayerIndex].lives--;
+        io.to(roomCode).emit('update users', room.users);
+
+        if (room.users[room.currentPlayerIndex].lives <= 0) {
+            room.users.splice(room.currentPlayerIndex, 1);
+            if (room.users.length === 0) {
+                delete rooms[roomCode];
+                io.to(roomCode).emit('game over', 'Tous les joueurs ont perdu.');
+                return;
+            }
+            if (room.currentPlayerIndex >= room.users.length) {
+                room.currentPlayerIndex = 0;
+            }
+        } else {
+            room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
+        }
+
+        room.syllable = generateValidSyllable();
+        const nextPlayer = room.users[room.currentPlayerIndex];
+        io.to(roomCode).emit('update game', {
+            syllable: room.syllable,
+            currentPlayer: nextPlayer.name,
+            timer: timerDuration
+        });
+        startTimer(roomCode);
+    }, timerDuration * 1000);
+
+    io.to(roomCode).emit('update timer', timerDuration);
 };
 
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.broadcast.emit('user connected');
+
     socket.on('disconnect', () => {
         console.log('user disconnected');
-        socket.broadcast.emit('user disconnected');
     });
 
     socket.on('create room', async (username) => {
         const roomCode = crypto.randomBytes(3).toString('hex');
-        if (!rooms[roomCode]) {
-            const letters = await generateValidLetters();
-            rooms[roomCode] = {
-                users: [], 
-                letters: letters,
-                currentPlayerIndex: 0
-            };
-            rooms[roomCode].users.push({ id: socket.id, name: username });
+        const syllable = generateValidSyllable();
+        rooms[roomCode] = {
+            users: [{ id: socket.id, name: username, lives: 3 }],
+            syllable: syllable,
+            currentPlayerIndex: 0,
+            creator: socket.id,
+            timer: null
+        };
+
+        socket.join(roomCode);
+        socket.emit('room created', roomCode);
+        io.to(roomCode).emit('room users', rooms[roomCode].users);
+    });
+
+    socket.on('join room', (roomCode, username) => {
+        const room = rooms[roomCode];
+        if (room && room.users.length < 5) {
+            room.users.push({ id: socket.id, name: username, lives: 3 });
             socket.join(roomCode);
-            socket.emit('room created', roomCode);
-            io.to(roomCode).emit('room users', rooms[roomCode].users);
-            io.to(roomCode).emit('game start', { letters: letters, currentPlayer: rooms[roomCode].users[0].id });
+            io.to(roomCode).emit('room users', room.users);
         } else {
             socket.emit('room full');
         }
     });
 
-    socket.on('join room', async (roomCode, username) => {
-        if (rooms[roomCode] && rooms[roomCode].users.length < 5) {
-            rooms[roomCode].users.push({ id: socket.id, name: username });
-            socket.join(roomCode);
-            io.to(roomCode).emit('room users', rooms[roomCode].users);
-            socket.emit('game start', { letters: rooms[roomCode].letters, currentPlayer: rooms[roomCode].users[0].id });
-        } else {
-            socket.emit('room full');
+    socket.on('start game', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.creator === socket.id) {
+            const initialTimer = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+            io.to(roomCode).emit('game start', {
+                syllable: room.syllable,
+                currentPlayer: room.users[0].name,
+                timer: initialTimer
+            });
+            startTimer(roomCode);
         }
     });
 
     socket.on('leave room', (roomCode) => {
-        if (rooms[roomCode]) {
-            rooms[roomCode].users = rooms[roomCode].users.filter(user => user.id !== socket.id);
+        const room = rooms[roomCode];
+        if (room) {
+            room.users = room.users.filter(user => user.id !== socket.id);
             socket.leave(roomCode);
-            io.to(roomCode).emit('room users', rooms[roomCode].users);
+            if (room.users.length === 0) {
+                if (room.timer) clearTimeout(room.timer);
+                delete rooms[roomCode];
+            } else {
+                io.to(roomCode).emit('room users', room.users);
+            }
         }
     });
 
     socket.on('word', async ({ roomCode, word }) => {
         const room = rooms[roomCode];
         if (room) {
-            const currentLetters = room.letters;
-            if (word.length >= 5 && word.includes(currentLetters)) {
+            const currentSyllable = room.syllable;
+            if (word.length >= 5 && word.includes(currentSyllable)) {
                 if (words.includes(word)) {
-                    room.letters = await generateValidLetters();
+                    if (room.timer) clearTimeout(room.timer);
+                    room.syllable = generateValidSyllable();
                     room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
-                    const nextPlayer = room.users[room.currentPlayerIndex].id;
-                    io.to(roomCode).emit('correct word', { letters: room.letters, currentPlayer: nextPlayer });
+                    const nextPlayer = room.users[room.currentPlayerIndex];
+                    io.to(roomCode).emit('correct word', {
+                        syllable: room.syllable,
+                        currentPlayer: nextPlayer.name
+                    });
+                    startTimer(roomCode);
                 } else {
-                    socket.emit('invalid word', 'Invalid word.');
+                    socket.emit('invalid word', 'Mot non valide.');
                 }
             } else {
-                socket.emit('invalid word', 'Word does not contain the given letters or is too short.');
+                socket.emit('invalid word', 'Le mot ne contient pas la syllabe donnée ou est trop court.');
             }
         } else {
-            socket.emit('invalid word', 'Room not found.');
+            socket.emit('invalid word', 'Room non trouvée.');
         }
     });
 });

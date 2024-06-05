@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SplashRound</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <div id="create-room">
@@ -24,8 +26,10 @@
             </div>
             <div id="game-info">
                 <p id="status"></p>
-                <p id="letters"></p>
+                <p id="syllable"></p>
+                <p id="timer"></p>
             </div>
+            <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
             <input type="text" id="message" placeholder="Votre mot">
             <button onclick="send()">Envoyer</button>
             <ul id="users"></ul>
@@ -34,4 +38,5 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
