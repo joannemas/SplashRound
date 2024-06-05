@@ -6,14 +6,26 @@
     <title>Document</title>
 </head>
 <body>
-    <p>last message</p>
-    <p class="data"></p>
-    <p>room</p>
-    <textarea name="" id="room"></textarea>
-    <p>message</p>
-    <textarea name="" id="message"></textarea>
-    <button onclick="send()">send</button>
-
+    <div id="create-room">
+        <input type="text" id="username" placeholder="Pseudo">
+        <button onclick="createRoom()">Créer un salon</button>
+    </div>
+    <div id="join-room">
+        <input type="text" id="join-username" placeholder="Pseudo">
+        <input type="text" id="join-room-code" placeholder="Code du salon">
+        <button onclick="joinRoomWithCode()">Rejoindre un salon</button>
+    </div>
+    <div id="chat-room" style="display: none;">
+        <div id="room-code-display">
+            <p>Code du salon: <span id="room-code"></span></p>
+        </div>
+        <p>Dans le salon:</p>
+        <ul id="users"></ul>
+        <p>Messages:</p>
+        <div id="messages"></div>
+        <input type="text" id="message-input" placeholder="Type your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 </body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
 <script src="./script.js"></script>
