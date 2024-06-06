@@ -12,7 +12,7 @@ socket.on('room users', (users) => {
     userList.innerHTML = '';
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p> <p>(Vies: ${user.lives})</p>`;
+        userItem.innerHTML = `<p>${user.lives}</p><img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         userList.appendChild(userItem);
     });
 });
@@ -58,7 +58,7 @@ socket.on('update users', (users) => {
     userList.innerHTML = '';
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p> <p>(Vies: ${user.lives})</p>`;
+        userItem.innerHTML = `<p>${user.lives}</p><img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         userList.appendChild(userItem);
     });
 });

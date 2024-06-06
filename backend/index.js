@@ -79,6 +79,10 @@ const assignRandomAvatar = (usedAvatars) => {
     return availableAvatars[randomIndex];
 };
 
+const formatLivesAsDrops = (lives) => {
+    return '💧'.repeat(lives);
+};
+
 const startTimer = (roomCode) => {
     const room = rooms[roomCode];
     if (!room) return;
@@ -90,7 +94,7 @@ const startTimer = (roomCode) => {
     const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
     room.timer = setTimeout(async () => {
         room.users[room.currentPlayerIndex].lives--;
-        io.to(roomCode).emit('update users', room.users);
+        io.to(roomCode).emit('update users', formatUserLives(room.users));
 
         if (room.users[room.currentPlayerIndex].lives <= 0) {
             room.users.splice(room.currentPlayerIndex, 1);
@@ -119,6 +123,13 @@ const startTimer = (roomCode) => {
     io.to(roomCode).emit('update timer', timerDuration);
 };
 
+const formatUserLives = (users) => {
+    return users.map(user => ({
+        ...user,
+        lives: formatLivesAsDrops(user.lives)
+    }));
+};
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -142,7 +153,7 @@ io.on('connection', (socket) => {
     
         socket.join(roomCode);
         socket.emit('room created', roomCode);
-        io.to(roomCode).emit('room users', rooms[roomCode].users);
+        io.to(roomCode).emit('room users', formatUserLives(rooms[roomCode].users));
     });
 
     socket.on('join room', (roomCode, username) => {
@@ -152,7 +163,7 @@ io.on('connection', (socket) => {
             room.users.push({ id: socket.id, name: username, lives: 3, avatar: avatar });
             room.usedAvatars.push(avatar);
             socket.join(roomCode);
-            io.to(roomCode).emit('room users', room.users);
+            io.to(roomCode).emit('room users', formatUserLives(room.users));
         } else {
             socket.emit('room full');
         }
