@@ -106,10 +106,21 @@ function send() {
 
 function updateStatus(currentPlayer) {
     const statusElement = document.getElementById('status');
+    const messageInput = document.getElementById('message');
+    const sendButton = document.querySelector('button[onclick="send()"]');
+
     if (currentPlayer === username) {
         statusElement.textContent = "C'est votre tour!";
+        messageInput.style.display = 'block';
+        sendButton.style.display = 'block';
+        messageInput.disabled = false;
+        sendButton.disabled = false;
     } else {
         statusElement.textContent = `C'est le tour de ${currentPlayer}.`;
+        messageInput.style.display = 'block';  // still visible but disabled
+        sendButton.style.display = 'block';
+        messageInput.disabled = true;
+        sendButton.disabled = true;
     }
 }
 

@@ -26,8 +26,7 @@
                 <h2>Rejoindre une partie ?</h2>
                 <div class="input-group">
                     <input type="text" id="join-username" placeholder="Votre pseudo" class="input">
-                    <input type="text" id="join-room-code" placeholder="Code de la room" class="input">  
-                    
+                    <input type="text" id="join-room-code" placeholder="Code de la room" class="input">
                     <button class="button--submit" onclick="joinRoomWithCode()">Rejoindre un salon</button>
                 </div>
             </div>
@@ -44,8 +43,8 @@
                 <p id="timer"></p>
             </div>
             <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
-            <input type="text" id="message" placeholder="Votre mot">
-            <button onclick="send()">Envoyer</button>
+            <input type="text" id="message" placeholder="Votre mot" disabled>
+            <button onclick="send()" disabled>Envoyer</button>
             <ul id="users"></ul>
         </div>
     </div>
