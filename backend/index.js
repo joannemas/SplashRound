@@ -4,7 +4,17 @@ import ip from 'ip';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import fetch from 'node-fetch';
-import crypto from 'crypto';
+import crypto from 'crypto'
+
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import fs from 'fs';
+
+// import shield from '../assets/shield.png';
+// import superhero from '../assets/superhero.png';
+// import volleyball from '../assets/volleyball.png';
+// import wings from '../assets/wings.png';
+
 
 const app = express();
 const server = http.createServer(app);
@@ -15,15 +25,28 @@ const io = new Server(server, {
     }
 });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 app.use(cors());
+app.use('/assets', express.static(join(__dirname, '..', 'assets')));
 
 app.get('/', (req, res) => {
     res.json('ip address: http://' + ip.address() + ':' + PORT);
 });
 
+
+
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
 const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu', 'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo', 'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo', 'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi', 'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're', 'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va', 've', 'vi', 'vo', 'vu'];
+// const avatar = [
+//     { id: 1, src: balloon },
+//     { id: 2, src: shield },
+//     { id: 3, src: superhero },
+//     { id: 4, src: volleyball },
+//     { id: 5, src: wings }
+// ]
 
 let words = [];
 
@@ -52,6 +75,20 @@ const generateValidSyllable = () => {
 };
 
 loadWords();
+
+
+
+const getAvailableAvatars = () => {
+    const avatarPath = join(__dirname, '..', 'assets');
+    return fs.readdirSync(avatarPath).filter(file => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg'));
+};
+
+const assignRandomAvatar = (usedAvatars) => {
+    const availableAvatars = getAvailableAvatars().filter(avatar => !usedAvatars.includes(avatar));
+    if (availableAvatars.length === 0) return null;  // Aucun avatar disponible
+    const randomIndex = Math.floor(Math.random() * availableAvatars.length);
+    return availableAvatars[randomIndex];
+};
 
 const startTimer = (roomCode) => {
     const room = rooms[roomCode];
@@ -103,14 +140,17 @@ io.on('connection', (socket) => {
     socket.on('create room', async (username) => {
         const roomCode = crypto.randomBytes(3).toString('hex');
         const syllable = generateValidSyllable();
+        const avatar = assignRandomAvatar([]);
+    
         rooms[roomCode] = {
-            users: [{ id: socket.id, name: username, lives: 3 }],
+            users: [{ id: socket.id, name: username, lives: 3, avatar: avatar }],
             syllable: syllable,
             currentPlayerIndex: 0,
             creator: socket.id,
-            timer: null
+            timer: null,
+            usedAvatars: [avatar]
         };
-
+    
         socket.join(roomCode);
         socket.emit('room created', roomCode);
         io.to(roomCode).emit('room users', rooms[roomCode].users);
@@ -119,7 +159,9 @@ io.on('connection', (socket) => {
     socket.on('join room', (roomCode, username) => {
         const room = rooms[roomCode];
         if (room && room.users.length < 5) {
-            room.users.push({ id: socket.id, name: username, lives: 3 });
+            const avatar = assignRandomAvatar(room.usedAvatars);
+            room.users.push({ id: socket.id, name: username, lives: 3, avatar: avatar });
+            room.usedAvatars.push(avatar);
             socket.join(roomCode);
             io.to(roomCode).emit('room users', room.users);
         } else {
