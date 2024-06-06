@@ -22,7 +22,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 app.use(cors());
-app.use('/assets', express.static(join(__dirname, '..', 'assets')));
+app.use('/assets', express.static(join(__dirname, '..', 'front', 'assets')));
 
 app.get('/', (req, res) => {
     res.json('Welcome to SplashRound server!');
@@ -61,7 +61,7 @@ const generateValidSyllable = () => {
 loadWords();
 
 const getAvailableAvatars = () => {
-    const avatarPath = join(__dirname, '..', 'assets');
+    const avatarPath = join(__dirname, '..', 'front', 'assets');
     return fs.readdirSync(avatarPath).filter(file => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg'));
 };
 
