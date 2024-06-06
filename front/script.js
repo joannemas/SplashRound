@@ -2,19 +2,15 @@ const socket = io('https://splashround.onrender.com/');
 let roomCode = '';
 let username = '';
 let timerInterval;
+let currentPlayer = '';
+let creator = false;
 
 socket.on('connect', () => {
     console.log('Connected');
 });
 
 socket.on('room users', (users) => {
-    const userList = document.getElementById('users');
-    userList.innerHTML = '';
-    users.forEach(user => {
-        const userItem = document.createElement('li');
-        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
-        userList.appendChild(userItem);
-    });
+    updateUsers(users);
 });
 
 socket.on('room full', () => {
@@ -23,25 +19,31 @@ socket.on('room full', () => {
 
 socket.on('room created', (code) => {
     roomCode = code;
+    creator = true;
     document.getElementById('room-code').textContent = roomCode;
     document.getElementById('room-code-display').style.display = 'block';
     document.getElementById('start-game').style.display = 'block';
 });
 
-socket.on('game start', ({ syllable, currentPlayer, timer }) => {
+socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
+    currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
     updateStatus(currentPlayer);
     startTimer(timer);
+    document.getElementById('chat-room').style.display = 'none';
+    document.getElementById('game-room').style.display = 'block';
 });
 
-socket.on('correct word', ({ syllable, currentPlayer }) => {
+socket.on('correct word', ({ syllable, currentPlayer: cp }) => {
+    currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
-    updateStatus(currentPlayer);
+    updateStatus(cp);
 });
 
-socket.on('update game', ({ syllable, currentPlayer, timer }) => {
+socket.on('update game', ({ syllable, currentPlayer: cp, timer }) => {
+    currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
-    updateStatus(currentPlayer);
+    updateStatus(cp);
     startTimer(timer);
 });
 
@@ -54,13 +56,7 @@ socket.on('invalid word', (msg) => {
 });
 
 socket.on('update users', (users) => {
-    const userList = document.getElementById('users');
-    userList.innerHTML = '';
-    users.forEach(user => {
-        const userItem = document.createElement('li');
-        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
-        userList.appendChild(userItem);
-    });
+    updateUsers(users);
 });
 
 function createRoom() {
@@ -97,6 +93,8 @@ function joinRoomWithCode() {
 function startGame() {
     socket.emit('start game', roomCode);
     document.getElementById('start-game').style.display = 'none';
+    document.getElementById('game-room').style.display = 'block';
+    document.getElementById('chat-room').style.display = 'none';
 }
 
 function send() {
@@ -111,14 +109,10 @@ function updateStatus(currentPlayer) {
 
     if (currentPlayer === username) {
         statusElement.textContent = "C'est votre tour!";
-        messageInput.style.display = 'block';
-        sendButton.style.display = 'block';
         messageInput.disabled = false;
         sendButton.disabled = false;
     } else {
         statusElement.textContent = `C'est le tour de ${currentPlayer}.`;
-        messageInput.style.display = 'block';  // still visible but disabled
-        sendButton.style.display = 'block';
         messageInput.disabled = true;
         sendButton.disabled = true;
     }
@@ -139,4 +133,26 @@ function startTimer(duration) {
             clearInterval(timerInterval);
         }
     }, 1000);
+}
+
+function updateUsers(users) {
+    const userList = document.getElementById('users');
+    userList.innerHTML = '';
+    users.forEach(user => {
+        const userItem = document.createElement('li');
+        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
+        userList.appendChild(userItem);
+    });
+
+    const playersList = document.getElementById('players');
+    playersList.innerHTML = '';
+    users.forEach(user => {
+        if (user.name === currentPlayer) {
+            document.getElementById('current-player').innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"><p>${user.name}</p>`;
+        } else {
+            const userItem = document.createElement('li');
+            userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
+            playersList.appendChild(userItem);
+        }
+    });
 }

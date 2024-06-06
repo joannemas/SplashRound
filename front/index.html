@@ -32,22 +32,32 @@
             </div>
         </section>
         
-        <div id="chat-room" style="display: none;">
+        <section id="chat-room" style="display: none;">
             <div id="user-info">
-                <p>Connecté en tant que : <span id="user-name"></span></p>
-                <p id="code">Code du salon : <span id="room-code"></span></p>
+                <p>Connecté en tant que: <span id="user-name"></span></p>
+                <p id="code">Code du salon: <span id="room-code"></span></p>
             </div>
+            <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
+            <ul id="users"></ul>
+        </section>
+
+        <section id="game-room" style="display: none;">
             <div id="game-info">
                 <p id="status"></p>
                 <p id="syllable"></p>
                 <p id="timer"></p>
             </div>
-            <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
-            <input type="text" id="message" placeholder="Votre mot" disabled>
-            <button onclick="send()" disabled>Envoyer</button>
-            <ul id="users"></ul>
-        </div>
+
+            <div>
+                <div id="current-player"></div>
+                <input type="text" id="message" placeholder="Votre mot" disabled>
+                <button onclick="send()" disabled>Envoyer</button> 
+            </div>
+            
+            <ul id="players"></ul>
+        </section>
     </div>
+
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
