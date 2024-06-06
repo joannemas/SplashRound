@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3000');
+const socket = io('https://splashround.onrender.com/');
 let roomCode = '';
 let username = '';
 let timerInterval;

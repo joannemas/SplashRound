@@ -4,17 +4,14 @@ import ip from 'ip';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import fetch from 'node-fetch';
-import crypto from 'crypto'
-
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
 
-
-
 const app = express();
 const server = http.createServer(app);
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -28,10 +25,8 @@ app.use(cors());
 app.use('/assets', express.static(join(__dirname, '..', 'assets')));
 
 app.get('/', (req, res) => {
-    res.json('ip address: http://' + ip.address() + ':' + PORT);
+    res.json('Welcome to SplashRound server!');
 });
-
-
 
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
@@ -65,8 +60,6 @@ const generateValidSyllable = () => {
 
 loadWords();
 
-
-
 const getAvailableAvatars = () => {
     const avatarPath = join(__dirname, '..', 'assets');
     return fs.readdirSync(avatarPath).filter(file => file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg'));
@@ -74,7 +67,7 @@ const getAvailableAvatars = () => {
 
 const assignRandomAvatar = (usedAvatars) => {
     const availableAvatars = getAvailableAvatars().filter(avatar => !usedAvatars.includes(avatar));
-    if (availableAvatars.length === 0) return null;  // Aucun avatar disponible
+    if (availableAvatars.length === 0) return null;
     const randomIndex = Math.floor(Math.random() * availableAvatars.length);
     return availableAvatars[randomIndex];
 };
@@ -126,7 +119,7 @@ const startTimer = (roomCode) => {
 const formatUserLives = (users) => {
     return users.map(user => ({
         ...user,
-        lives: formatLivesAsDrops(user.lives)
+        lives: formatLivesAsDrops(user.lives),
     }));
 };
 
@@ -224,5 +217,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-    console.log('Server ip : http://' + ip.address() + ":" + PORT);
+    console.log('Server is running on port:', PORT);
 });
