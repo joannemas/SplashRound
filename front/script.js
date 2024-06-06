@@ -12,7 +12,7 @@ socket.on('room users', (users) => {
     userList.innerHTML = '';
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 50px;"> ${user.name} (Vies: ${user.lives})`;
+        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p> <p>(Vies: ${user.lives})</p>`;
         userList.appendChild(userItem);
     });
 });
@@ -58,7 +58,7 @@ socket.on('update users', (users) => {
     userList.innerHTML = '';
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 50px;"> ${user.name} (Vies: ${user.lives})`;
+        userItem.innerHTML = `<img src="../assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p> <p>(Vies: ${user.lives})</p>`;
         userList.appendChild(userItem);
     });
 });
@@ -69,6 +69,7 @@ function createRoom() {
         socket.emit('create room', username);
         document.getElementById('create-room').style.display = 'none';
         document.getElementById('join-room').style.display = 'none';
+        document.getElementById('connexion').style.display = 'none';
         document.getElementById('chat-room').style.display = 'block';
         document.getElementById('user-name').textContent = username;
     } else {
@@ -84,6 +85,7 @@ function joinRoomWithCode() {
         socket.emit('join room', joinRoomCode, username);
         document.getElementById('create-room').style.display = 'none';
         document.getElementById('join-room').style.display = 'none';
+        document.getElementById('connexion').style.display = 'none';
         document.getElementById('chat-room').style.display = 'block';
         document.getElementById('user-name').textContent = username;
         document.getElementById('room-code').textContent = roomCode;

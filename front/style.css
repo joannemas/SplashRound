@@ -8,10 +8,10 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    box-sizing: border-box;
 }
 
 .container {
-    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
     max-width: 600px;
@@ -26,27 +26,6 @@ body {
     margin-bottom: 20px;
 }
 
-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-input[type="text"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
 
 ul {
     list-style-type: none;
@@ -55,4 +34,84 @@ ul {
 
 li {
     padding: 5px 0;
+}
+
+#connexion {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 80vh;
+    margin: auto;
+}
+
+#create-room {
+    background-color: rgba(224, 147, 234, 0.288);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    color: #fff;
+}
+
+#join-room {
+    background-color: rgba(236, 234, 234, 0.5);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    color: #fff;
+    justify-content: center;
+}
+
+h2 {
+    font-family: "Titan One", sans-serif;
+    font-size: 2rem;
+    -webkit-text-stroke: 0.5px rgba(240, 167, 135, 0.749);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.input {
+    min-height: 50px;
+    padding: 1 1rem;
+    color: #fff;
+    font-size: 15px;
+    border: 2px solid #FF7F3E;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0 10px;
+    margin: 10px 0;
+}
+
+.button--submit {
+    min-height: 50px;
+    background-color: #FF7F3E;
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 30px;
+    padding: 0 20px;
+    transition: background-color .3s ease-in-out;
+}
+
+.button--submit:hover {
+    background-color: #5e5dcd;
+}
+
+.input:focus, .input:focus-visible {
+    border-color: #3898EC;
+    outline: none;
+}
+
+#code {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
 }

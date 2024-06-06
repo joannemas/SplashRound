@@ -5,24 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SplashRound</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
-        <div id="create-room">
-            <input type="text" id="username" placeholder="Votre pseudo">
-            <button onclick="createRoom()">Créer un salon</button>
-        </div>
-        <div id="join-room">
-            <input type="text" id="join-username" placeholder="Votre pseudo">
-            <input type="text" id="join-room-code" placeholder="Code de la room">
-            <button onclick="joinRoomWithCode()">Rejoindre un salon</button>
-        </div>
+        <section id="connexion">
+            <div id="create-room">
+                <h2>Commencer une partie ?</h2>
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Votre pseudo" class="input">
+                    <button class="button--submit" onclick="createRoom()">Créer un salon</button>
+                </div>
+            </div>
+
+            <div id="join-room">
+                <h2>Rejoindre une partie ?</h2>
+                <div class="input-group">
+                    <input type="text" id="join-username" placeholder="Votre pseudo" class="input">
+                    <input type="text" id="join-room-code" placeholder="Code de la room" class="input">  
+                    
+                    <button class="button--submit" onclick="joinRoomWithCode()">Rejoindre un salon</button>
+                </div>
+            </div>
+        </section>
+        
         <div id="chat-room" style="display: none;">
             <div id="user-info">
                 <p>Connecté en tant que : <span id="user-name"></span></p>
-                <p>Code du salon : <span id="room-code"></span></p>
+                <p id="code">Code du salon : <span id="room-code"></span></p>
             </div>
             <div id="game-info">
                 <p id="status"></p>

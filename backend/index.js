@@ -10,10 +10,6 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
 
-// import shield from '../assets/shield.png';
-// import superhero from '../assets/superhero.png';
-// import volleyball from '../assets/volleyball.png';
-// import wings from '../assets/wings.png';
 
 
 const app = express();
@@ -40,13 +36,6 @@ app.get('/', (req, res) => {
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
 const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu', 'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo', 'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo', 'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi', 'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're', 'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va', 've', 'vi', 'vo', 'vu'];
-// const avatar = [
-//     { id: 1, src: balloon },
-//     { id: 2, src: shield },
-//     { id: 3, src: superhero },
-//     { id: 4, src: volleyball },
-//     { id: 5, src: wings }
-// ]
 
 let words = [];
 
