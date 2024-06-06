@@ -1,10 +1,4 @@
-#message[disabled],
-button[onclick="send()"][disabled] {
-    background-color: #cccccc;  
-    cursor: not-allowed;      
-}
-
-/* Le reste de votre CSS reste inchangé */
+/* Le reste de votre CSS existe déjà */
 body {
     background-color: #8EC5FC;
     background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 50%, #82fc9a 100%);
@@ -57,7 +51,7 @@ li {
     border-radius: 8px;
     max-width: 600px;
     width: 100%;
-    color: #fff;
+    color: #ffffff;
 }
 
 #join-room {
@@ -66,7 +60,7 @@ li {
     border-radius: 8px;
     max-width: 600px;
     width: 100%;
-    color: #fff;
+    color: #ffffff;
     justify-content: center;
 }
 
@@ -85,7 +79,7 @@ h2 {
 .input {
     min-height: 50px;
     padding: 1 1rem;
-    color: #fff;
+    color: #ffffff;
     font-size: 15px;
     border: 2px solid #FF7F3E;
     border-radius: 20px;
@@ -98,7 +92,7 @@ h2 {
     min-height: 50px;
     background-color: #FF7F3E;
     border: none;
-    color: #fff;
+    color: #ffffff;
     font-size: 15px;
     cursor: pointer;
     border-radius: 30px;
@@ -120,4 +114,20 @@ h2 {
     top: 0;
     right: 0;
     padding: 10px;
+}
+
+
+#timer-bar-container {
+    width: 100%;
+    background-color: #cccccc;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+#timer-bar {
+    height: 20px;
+    background-color: #4caf50;
+    width: 100%;
+    transition: width 1s linear;
 }

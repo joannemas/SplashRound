@@ -21,13 +21,22 @@ socket.on('room created', (code) => {
     roomCode = code;
     creator = true;
     document.getElementById('room-code').textContent = roomCode;
-    document.getElementById('room-code-display').style.display = 'block';
     document.getElementById('start-game').style.display = 'block';
+    document.getElementById('chat-room').style.display = 'block';
+    document.getElementById('connexion').style.display = 'none'; // hide connection section once room is created
+});
+
+socket.on('confirm join', ({ username, creator }) => {
+    document.getElementById('start-game').style.display = creator ? 'block' : 'none';
+    document.getElementById('chat-room').style.display = 'block';
+    document.getElementById('user-name').textContent = username;
+    document.getElementById('room-code').textContent = roomCode;
+    document.getElementById('connexion').style.display = 'none'; // hide connection section once joined
 });
 
 socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
-    document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
+    document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(currentPlayer);
     startTimer(timer);
     document.getElementById('chat-room').style.display = 'none';
@@ -36,13 +45,13 @@ socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
 
 socket.on('correct word', ({ syllable, currentPlayer: cp }) => {
     currentPlayer = cp;
-    document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
+    document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
 });
 
 socket.on('update game', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
-    document.getElementById('syllable').textContent = `Syllabe : ${syllable}`;
+    document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
     startTimer(timer);
 });
@@ -63,11 +72,6 @@ function createRoom() {
     username = document.getElementById('username').value;
     if (username) {
         socket.emit('create room', username);
-        document.getElementById('create-room').style.display = 'none';
-        document.getElementById('join-room').style.display = 'none';
-        document.getElementById('connexion').style.display = 'none';
-        document.getElementById('chat-room').style.display = 'block';
-        document.getElementById('user-name').textContent = username;
     } else {
         alert('Please enter a username.');
     }
@@ -120,14 +124,18 @@ function updateStatus(currentPlayer) {
 
 function startTimer(duration) {
     const timerElement = document.getElementById('timer');
+    const timerBar = document.getElementById('timer-bar');
     let timeRemaining = duration;
 
     clearInterval(timerInterval);
 
     timerElement.textContent = `Temps restant: ${timeRemaining}s`;
+    timerBar.style.width = '100%';
+    
     timerInterval = setInterval(() => {
         timeRemaining -= 1;
         timerElement.textContent = `Temps restant: ${timeRemaining}s`;
+        timerBar.style.width = `${(timeRemaining / duration) * 100}%`;
 
         if (timeRemaining <= 0) {
             clearInterval(timerInterval);
@@ -147,11 +155,11 @@ function updateUsers(users) {
     const playersList = document.getElementById('players');
     playersList.innerHTML = '';
     users.forEach(user => {
+        const userItem = document.createElement('li');
+        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         if (user.name === currentPlayer) {
-            document.getElementById('current-player').innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"><p>${user.name}</p>`;
+            document.getElementById('current-player').innerHTML = userItem.innerHTML;
         } else {
-            const userItem = document.createElement('li');
-            userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
             playersList.appendChild(userItem);
         }
     });
