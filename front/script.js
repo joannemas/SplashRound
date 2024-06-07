@@ -4,6 +4,7 @@ let username = '';
 let timerInterval;
 let currentPlayer = '';
 let creator = false;
+let timerDuration = 0;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -26,7 +27,9 @@ socket.on('room created', (code) => {
     document.getElementById('connexion').style.display = 'none'; // hide connection section once room is created
 });
 
-socket.on('confirm join', ({ username, creator }) => {
+socket.on('confirm join', ({ username: joinedUsername, creator: isCreator }) => {
+    username = joinedUsername;
+    creator = isCreator;
     document.getElementById('start-game').style.display = creator ? 'block' : 'none';
     document.getElementById('chat-room').style.display = 'block';
     document.getElementById('user-name').textContent = username;
@@ -36,6 +39,7 @@ socket.on('confirm join', ({ username, creator }) => {
 
 socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
+    timerDuration = timer;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(currentPlayer);
     startTimer(timer);
@@ -47,13 +51,14 @@ socket.on('correct word', ({ syllable, currentPlayer: cp }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
+    // continue with the same timer
 });
 
-socket.on('update game', ({ syllable, currentPlayer: cp, timer }) => {
+socket.on('update game', ({ syllable, currentPlayer: cp }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
-    startTimer(timer);
+    startTimer(timerDuration); // use the same duration previously set
 });
 
 socket.on('update timer', (timer) => {
@@ -68,6 +73,11 @@ socket.on('update users', (users) => {
     updateUsers(users);
 });
 
+socket.on('game over', (message) => {
+    alert(message);
+    location.reload();
+});
+
 function createRoom() {
     username = document.getElementById('username').value;
     if (username) {
@@ -79,16 +89,10 @@ function createRoom() {
 
 function joinRoomWithCode() {
     const joinRoomCode = document.getElementById('join-room-code').value;
-    username = document.getElementById('join-username').value;
-    if (joinRoomCode && username) {
+    const joinUsername = document.getElementById('join-username').value;
+    if (joinRoomCode && joinUsername) {
         roomCode = joinRoomCode;
-        socket.emit('join room', joinRoomCode, username);
-        document.getElementById('create-room').style.display = 'none';
-        document.getElementById('join-room').style.display = 'none';
-        document.getElementById('connexion').style.display = 'none';
-        document.getElementById('chat-room').style.display = 'block';
-        document.getElementById('user-name').textContent = username;
-        document.getElementById('room-code').textContent = roomCode;
+        socket.emit('join room', joinRoomCode, joinUsername);
     } else {
         alert('Veuillez compléter tous les champs.');
     }
@@ -97,8 +101,6 @@ function joinRoomWithCode() {
 function startGame() {
     socket.emit('start game', roomCode);
     document.getElementById('start-game').style.display = 'none';
-    document.getElementById('game-room').style.display = 'block';
-    document.getElementById('chat-room').style.display = 'none';
 }
 
 function send() {
@@ -106,17 +108,17 @@ function send() {
     socket.emit('word', { roomCode: roomCode, word: word });
 }
 
-function updateStatus(currentPlayer) {
+function updateStatus(cp) {
     const statusElement = document.getElementById('status');
     const messageInput = document.getElementById('message');
     const sendButton = document.querySelector('button[onclick="send()"]');
 
-    if (currentPlayer === username) {
+    if (cp === username) {
         statusElement.textContent = "C'est votre tour!";
         messageInput.disabled = false;
         sendButton.disabled = false;
     } else {
-        statusElement.textContent = `C'est le tour de ${currentPlayer}.`;
+        statusElement.textContent = `C'est le tour de ${cp}.`;
         messageInput.disabled = true;
         sendButton.disabled = true;
     }
@@ -131,7 +133,8 @@ function startTimer(duration) {
 
     timerElement.textContent = `Temps restant: ${timeRemaining}s`;
     timerBar.style.width = '100%';
-    
+    timerBar.style.backgroundColor = '#83B4FF';
+
     timerInterval = setInterval(() => {
         timeRemaining -= 1;
         timerElement.textContent = `Temps restant: ${timeRemaining}s`;

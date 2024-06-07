@@ -30,7 +30,13 @@ app.get('/', (req, res) => {
 
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
-const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu', 'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo', 'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo', 'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi', 'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're', 'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va', 've', 'vi', 'vo', 'vu'];
+const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu',
+    'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo',
+    'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo',
+    'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi',
+    'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're',
+    'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va',
+    've', 'vi', 'vo', 'vu', 'on', 'ou', 'oi', 'eu', 'ui'];
 
 let words = [];
 
@@ -76,7 +82,7 @@ const formatLivesAsDrops = (lives) => {
     return '💧'.repeat(lives);
 };
 
-const startTimer = (roomCode) => {
+const startTimer = (roomCode, duration) => {
     const room = rooms[roomCode];
     if (!room) return;
 
@@ -84,18 +90,19 @@ const startTimer = (roomCode) => {
         clearTimeout(room.timer);
     }
 
-    const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
     room.timer = setTimeout(async () => {
         room.users[room.currentPlayerIndex].lives--;
         io.to(roomCode).emit('update users', formatUserLives(room.users));
 
         if (room.users[room.currentPlayerIndex].lives <= 0) {
             room.users.splice(room.currentPlayerIndex, 1);
-            if (room.users.length === 0) {
+
+            if (room.users.length === 1) {
+                io.to(roomCode).emit('game over', `${room.users[0].name} a gagné!`);
                 delete rooms[roomCode];
-                io.to(roomCode).emit('game over', 'Tous les joueurs ont perdu.');
                 return;
             }
+
             if (room.currentPlayerIndex >= room.users.length) {
                 room.currentPlayerIndex = 0;
             }
@@ -103,17 +110,16 @@ const startTimer = (roomCode) => {
             room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
         }
 
-        room.syllable = generateValidSyllable();
         const nextPlayer = room.users[room.currentPlayerIndex];
         io.to(roomCode).emit('update game', {
             syllable: room.syllable,
             currentPlayer: nextPlayer.name,
-            timer: timerDuration
+            timer: duration
         });
-        startTimer(roomCode);
-    }, timerDuration * 1000);
+        startTimer(roomCode, duration);
+    }, duration * 1000);
 
-    io.to(roomCode).emit('update timer', timerDuration);
+    io.to(roomCode).emit('update timer', duration);
 };
 
 const formatUserLives = (users) => {
@@ -128,13 +134,27 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        for (const roomCode in rooms) {
+            const room = rooms[roomCode];
+            const userIndex = room.users.findIndex(user => user.id === socket.id);
+            if (userIndex !== -1) {
+                room.users.splice(userIndex, 1);
+                if (room.users.length === 0) {
+                    if (room.timer) clearTimeout(room.timer);
+                    delete rooms[roomCode];
+                } else {
+                    io.to(roomCode).emit('room users', formatUserLives(room.users));
+                }
+                break;
+            }
+        }
     });
 
     socket.on('create room', async (username) => {
         const roomCode = crypto.randomBytes(3).toString('hex');
         const syllable = generateValidSyllable();
         const avatar = assignRandomAvatar([]);
-    
+
         rooms[roomCode] = {
             users: [{ id: socket.id, name: username, lives: 3, avatar: avatar }],
             syllable: syllable,
@@ -143,7 +163,7 @@ io.on('connection', (socket) => {
             timer: null,
             usedAvatars: [avatar]
         };
-    
+
         socket.join(roomCode);
         socket.emit('room created', roomCode);
         io.to(roomCode).emit('room users', formatUserLives(rooms[roomCode].users));
@@ -156,6 +176,7 @@ io.on('connection', (socket) => {
             room.users.push({ id: socket.id, name: username, lives: 3, avatar: avatar });
             room.usedAvatars.push(avatar);
             socket.join(roomCode);
+            socket.emit('confirm join', { username, creator: room.creator === socket.id });
             io.to(roomCode).emit('room users', formatUserLives(room.users));
         } else {
             socket.emit('room full');
@@ -166,12 +187,14 @@ io.on('connection', (socket) => {
         const room = rooms[roomCode];
         if (room && room.creator === socket.id) {
             const initialTimer = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+            room.syllable = generateValidSyllable();
+            room.currentPlayerIndex = 0; // Ensure creator starts the game
             io.to(roomCode).emit('game start', {
                 syllable: room.syllable,
-                currentPlayer: room.users[0].name,
+                currentPlayer: room.users[room.currentPlayerIndex].name,
                 timer: initialTimer
             });
-            startTimer(roomCode);
+            startTimer(roomCode, initialTimer);
         }
     });
 
@@ -179,12 +202,12 @@ io.on('connection', (socket) => {
         const room = rooms[roomCode];
         if (room) {
             room.users = room.users.filter(user => user.id !== socket.id);
+            if (room.timer) clearTimeout(room.timer);
             socket.leave(roomCode);
             if (room.users.length === 0) {
-                if (room.timer) clearTimeout(room.timer);
                 delete rooms[roomCode];
             } else {
-                io.to(roomCode).emit('room users', room.users);
+                io.to(roomCode).emit('room users', formatUserLives(room.users));
             }
         }
     });
@@ -195,7 +218,6 @@ io.on('connection', (socket) => {
             const currentSyllable = room.syllable;
             if (word.length >= 5 && word.includes(currentSyllable)) {
                 if (words.includes(word)) {
-                    if (room.timer) clearTimeout(room.timer);
                     room.syllable = generateValidSyllable();
                     room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
                     const nextPlayer = room.users[room.currentPlayerIndex];
@@ -203,7 +225,6 @@ io.on('connection', (socket) => {
                         syllable: room.syllable,
                         currentPlayer: nextPlayer.name
                     });
-                    startTimer(roomCode);
                 } else {
                     socket.emit('invalid word', 'Mot non valide.');
                 }

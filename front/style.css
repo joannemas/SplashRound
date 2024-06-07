@@ -1,4 +1,4 @@
-/* Le reste de votre CSS existe déjà */
+/* Le reste de votre CSS reste inchangé */
 body {
     background-color: #8EC5FC;
     background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 50%, #82fc9a 100%);
@@ -116,7 +116,6 @@ h2 {
     padding: 10px;
 }
 
-
 #timer-bar-container {
     width: 100%;
     background-color: #cccccc;
@@ -130,4 +129,8 @@ h2 {
     background-color: #4caf50;
     width: 100%;
     transition: width 1s linear;
+}
+
+#start-game {
+    display: none; /* Ensure the start button is hidden initially */
 }
