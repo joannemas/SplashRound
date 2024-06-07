@@ -30,13 +30,13 @@ app.get('/', (req, res) => {
 
 const rooms = {};
 const wordAPI = 'https://raw.githubusercontent.com/words/an-array-of-french-words/master/index.json';
-const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu',
-    'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo',
-    'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo',
-    'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi',
-    'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're',
-    'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va',
-    've', 'vi', 'vo', 'vu', 'on', 'ou', 'oi', 'eu', 'ui'];
+const syllables = ['ab', 'al', 'am', 'an', 'ar', 'as', 'at', 'au', 'av', 'ba', 'be', 'bi', 'bo', 'bu', 
+                   'ca', 'ce', 'ci', 'co', 'cu', 'da', 'de', 'di', 'do', 'du', 'fa', 'fe', 'fi', 'fo', 
+                   'ga', 'ge', 'gi', 'go', 'gu', 'ha', 'he', 'hi', 'ho', 'hu', 'ja', 'je', 'ji', 'jo', 
+                   'ju', 'ka', 'ke', 'ki', 'ko', 'ku', 'la', 'le', 'li', 'lo', 'lu', 'ma', 'me', 'mi', 
+                   'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu', 'pa', 'pe', 'pi', 'po', 'pu', 'ra', 're', 
+                   'ri', 'ro', 'ru', 'sa', 'se', 'si', 'so', 'su', 'ta', 'te', 'ti', 'to', 'tu', 'va', 
+                   've', 'vi', 'vo', 'vu'];
 
 let words = [];
 
@@ -82,7 +82,7 @@ const formatLivesAsDrops = (lives) => {
     return '💧'.repeat(lives);
 };
 
-const startTimer = (roomCode, duration) => {
+const startTimer = (roomCode) => {
     const room = rooms[roomCode];
     if (!room) return;
 
@@ -90,6 +90,7 @@ const startTimer = (roomCode, duration) => {
         clearTimeout(room.timer);
     }
 
+    const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
     room.timer = setTimeout(async () => {
         room.users[room.currentPlayerIndex].lives--;
         io.to(roomCode).emit('update users', formatUserLives(room.users));
@@ -110,16 +111,17 @@ const startTimer = (roomCode, duration) => {
             room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
         }
 
+        room.syllable = generateValidSyllable();
         const nextPlayer = room.users[room.currentPlayerIndex];
         io.to(roomCode).emit('update game', {
             syllable: room.syllable,
             currentPlayer: nextPlayer.name,
-            timer: duration
+            timer: timerDuration
         });
-        startTimer(roomCode, duration);
-    }, duration * 1000);
+        startTimer(roomCode);
+    }, timerDuration * 1000);
 
-    io.to(roomCode).emit('update timer', duration);
+    io.to(roomCode).emit('update timer', timerDuration);
 };
 
 const formatUserLives = (users) => {
@@ -194,7 +196,7 @@ io.on('connection', (socket) => {
                 currentPlayer: room.users[room.currentPlayerIndex].name,
                 timer: initialTimer
             });
-            startTimer(roomCode, initialTimer);
+            startTimer(roomCode);
         }
     });
 
@@ -221,10 +223,13 @@ io.on('connection', (socket) => {
                     room.syllable = generateValidSyllable();
                     room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.users.length;
                     const nextPlayer = room.users[room.currentPlayerIndex];
+                    const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
                     io.to(roomCode).emit('correct word', {
                         syllable: room.syllable,
-                        currentPlayer: nextPlayer.name
+                        currentPlayer: nextPlayer.name,
+                        timer: timerDuration // send new timer value
                     });
+                    startTimer(roomCode); // reset timer for the new player
                 } else {
                     socket.emit('invalid word', 'Mot non valide.');
                 }

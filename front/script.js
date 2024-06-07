@@ -4,7 +4,6 @@ let username = '';
 let timerInterval;
 let currentPlayer = '';
 let creator = false;
-let timerDuration = 0;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -39,7 +38,6 @@ socket.on('confirm join', ({ username: joinedUsername, creator: isCreator }) => 
 
 socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
-    timerDuration = timer;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(currentPlayer);
     startTimer(timer);
@@ -47,18 +45,18 @@ socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     document.getElementById('game-room').style.display = 'block';
 });
 
-socket.on('correct word', ({ syllable, currentPlayer: cp }) => {
+socket.on('correct word', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
-    // continue with the same timer
+    startTimer(timer); // restart the timer with new value
 });
 
-socket.on('update game', ({ syllable, currentPlayer: cp }) => {
+socket.on('update game', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
-    startTimer(timerDuration); // use the same duration previously set
+    startTimer(timer); // restart the timer with new value
 });
 
 socket.on('update timer', (timer) => {
@@ -79,8 +77,9 @@ socket.on('game over', (message) => {
 });
 
 function createRoom() {
-    username = document.getElementById('username').value;
-    if (username) {
+    const usernameInput = document.getElementById('username').value;
+    if (usernameInput) {
+        username = usernameInput;
         socket.emit('create room', username);
     } else {
         alert('Please enter a username.');
@@ -92,6 +91,7 @@ function joinRoomWithCode() {
     const joinUsername = document.getElementById('join-username').value;
     if (joinRoomCode && joinUsername) {
         roomCode = joinRoomCode;
+        username = joinUsername;
         socket.emit('join room', joinRoomCode, joinUsername);
     } else {
         alert('Veuillez compléter tous les champs.');
@@ -129,11 +129,10 @@ function startTimer(duration) {
     const timerBar = document.getElementById('timer-bar');
     let timeRemaining = duration;
 
-    clearInterval(timerInterval);
+    clearInterval(timerInterval); // Clear any existing timer
 
     timerElement.textContent = `Temps restant: ${timeRemaining}s`;
     timerBar.style.width = '100%';
-    timerBar.style.backgroundColor = '#83B4FF';
 
     timerInterval = setInterval(() => {
         timeRemaining -= 1;
