@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -34,11 +34,13 @@
         
         <section id="chat-room" style="display: none;">
             <div id="user-info">
-                <p>Connecté en tant que: <span id="user-name"></span></p>
+                <div id="my-player" class="my-player"></div>
                 <p id="code">Code du salon: <span id="room-code"></span></p>
             </div>
-            <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
             <ul id="users"></ul>
+            <p>En attente de joueurs...</p>
+            <button id="start-game" onclick="startGame()">Démarrer le jeu</button>
+
         </section>
 
         <section id="game-room" style="display: none;">

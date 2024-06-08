@@ -1,4 +1,3 @@
-/* Le reste de votre CSS reste inchangé */
 body {
     background-color: #8EC5FC;
     background-image: linear-gradient(62deg, #8EC5FC 0%, #E0C3FC 50%, #82fc9a 100%);
@@ -88,7 +87,7 @@ h2 {
     margin: 10px 0;
 }
 
-.button--submit {
+.button--submit, #start-game {
     min-height: 50px;
     background-color: #FF7F3E;
     border: none;
@@ -132,5 +131,49 @@ h2 {
 }
 
 #start-game {
-    display: none; /* Ensure the start button is hidden initially */
+    display: none;
+    margin: 30px auto;
+    font-family: Titan One;
+}
+
+#users, #user-info {
+    display: flex;
+    flex-wrap: wrap;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+}
+
+#users li {
+    margin: 0 10px;
+}
+
+#players li {
+    width: min-content;
+    margin-bottom: 20px;
+}
+
+#players p {
+    margin-bottom: 0px;
+}
+
+#users li img, #my-player img, #players li img {
+    width: 100px;
+    border: 5px white solid;
+    border-radius: 20px;
+}
+
+#users p, #my-player p, #players li p {
+    margin-top: 2px;
+    text-align: center;
+    font-family: Titan One;
+    color: purple;
+    font-size: 1.25rem;
+}
+
+#chat-room p {
+    text-align: center;
+    font-family: Titan One;
+    letter-spacing: 1.5px;
 }

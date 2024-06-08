@@ -31,7 +31,6 @@ socket.on('confirm join', ({ username: joinedUsername, creator: isCreator }) => 
     creator = isCreator;
     document.getElementById('start-game').style.display = creator ? 'block' : 'none';
     document.getElementById('chat-room').style.display = 'block';
-    document.getElementById('user-name').textContent = username;
     document.getElementById('room-code').textContent = roomCode;
     document.getElementById('connexion').style.display = 'none'; // hide connection section once joined
 });
@@ -147,11 +146,23 @@ function startTimer(duration) {
 
 function updateUsers(users) {
     const userList = document.getElementById('users');
+    const myUserDiv = document.getElementById('my-player');
+    const myUser = users.find(user => user.name === username);
+
+    // Clear
     userList.innerHTML = '';
+    myUserDiv.innerHTML = '';
+
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
-        userList.appendChild(userItem);
+        userItem.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
+        
+        
+        if (myUser === user) { // Afficher le joueur actuel dans la div my player
+            myUserDiv.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
+        } else {
+            userList.appendChild(userItem);
+        }
     });
 
     const playersList = document.getElementById('players');
