@@ -11,7 +11,7 @@ socket.on('connect', () => {
 
 socket.on('room users', (users) => {
     updateUsers(users);
-    grayscaleDeadPlayers(users); // Grayscale players who have no lives
+    grayscaleDeadPlayers(users);
 });
 
 socket.on('room full', () => {
@@ -24,7 +24,7 @@ socket.on('room created', (code) => {
     document.getElementById('room-code').textContent = roomCode;
     document.getElementById('start-game').style.display = 'block';
     document.getElementById('chat-room').style.display = 'block';
-    document.getElementById('connexion').style.display = 'none'; // hide connection section once room is created
+    document.getElementById('connexion').style.display = 'none';
 });
 
 socket.on('confirm join', ({ username: joinedUsername, creator: isCreator }) => {
@@ -33,7 +33,7 @@ socket.on('confirm join', ({ username: joinedUsername, creator: isCreator }) => 
     document.getElementById('start-game').style.display = creator ? 'block' : 'none';
     document.getElementById('chat-room').style.display = 'block';
     document.getElementById('room-code').textContent = roomCode;
-    document.getElementById('connexion').style.display = 'none'; // hide connection section once joined
+    document.getElementById('connexion').style.display = 'none';
 });
 
 socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
@@ -43,13 +43,14 @@ socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     startTimer(timer);
     document.getElementById('chat-room').style.display = 'none';
     document.getElementById('game-room').style.display = 'block';
+    document.getElementById('water-gun').style.display = 'block';
 });
 
 socket.on('correct word', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
-    startTimer(timer); // restart the timer with new value
+    startTimer(timer);
     showAlert('Mot correct! Passe au tour suivant.', 'success');
 });
 
@@ -57,7 +58,7 @@ socket.on('update game', ({ syllable, currentPlayer: cp, timer }) => {
     currentPlayer = cp;
     document.getElementById('syllable').textContent = `Syllabe: ${syllable}`;
     updateStatus(cp);
-    startTimer(timer); // restart the timer with new value
+    startTimer(timer);
     showAlert('Passez au tour suivant.', 'info');
 });
 
@@ -67,6 +68,11 @@ socket.on('update timer', (timer) => {
 
 socket.on('invalid word', (msg) => {
     showAlert(msg, 'danger');
+});
+
+socket.on('user loses life', (user) => {
+    animateWaterGun();
+    showAlert(`${user.name} a perdu une vie!`, 'danger');
 });
 
 socket.on('update users', (users) => {
@@ -154,13 +160,12 @@ function updateUsers(users) {
     const myUserDiv = document.getElementById('my-player');
     const myUser = users.find(user => user.name === username);
 
-    // Clear
     userList.innerHTML = '';
     myUserDiv.innerHTML = '';
 
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;;
+        userItem.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         
         if (myUser === user) {
             myUserDiv.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
@@ -236,7 +241,7 @@ function showAlert(message, type) {
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-10.293a1 1 0 011.414 0L10 9.586l2.293-2.293a1 1 0 111.414 1.414L10 12.414l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-10.293a1 1 0 011.414 0L10 9.586l2.293-2.293a1 1 0 111.414 1.414L10 12.414l-2.293-2.293a1 1 0 01-1.414-1.414z" clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="ml-3">
@@ -254,7 +259,7 @@ function showAlert(message, type) {
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488 ...-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="ml-3">
@@ -270,5 +275,14 @@ function showAlert(message, type) {
     document.getElementById('alert-container').appendChild(alertContainer);
     setTimeout(() => {
         alertContainer.remove();
-    }, 3000);
+    }, 5000); // Remove alert after 5 seconds
+}
+
+function animateWaterGun() {
+    const waterGun = document.getElementById('water-gun-img');
+    waterGun.style.transform = 'translateX(-20px)';
+    
+    setTimeout(() => {
+        waterGun.style.transform = 'translateX(0)';
+    }, 200);
 }

@@ -232,3 +232,25 @@ h2 {
 .text-red-800 {
     color: #c53030;
 }
+
+#message {
+    min-height: 50px;
+    padding: 1 1rem;
+    color: #ffffff;
+    font-size: 15px;
+    border: 2px solid #FF7F3E;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0 10px;
+    margin: 10px 0;
+}
+
+
+#water-gun {
+    display: none;
+}
+
+#water-gun-img {
+    width: 250px;
+    transition: transform 0.2s ease;
+}
