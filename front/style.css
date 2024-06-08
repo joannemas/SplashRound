@@ -35,6 +35,10 @@ li {
     padding: 5px 0;
 }
 
+.grayscale {
+    filter: grayscale(100%);
+}
+
 #connexion {
     display: flex;
     align-items: center;
@@ -176,4 +180,59 @@ h2 {
     text-align: center;
     font-family: Titan One;
     letter-spacing: 1.5px;
+}
+
+#alert-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+.rounded-md {
+    border-radius: 0.5rem;
+}
+
+.bg-yellow-50 {
+    background-color: #fefcbf;
+}
+.text-yellow-400 {
+    color: #ecc94b;
+}
+.text-yellow-700 {
+    color: #b7791f;
+}
+.text-yellow-800 {
+    color: #975a16;
+}
+
+/* Success */
+.bg-green-50 {
+    background-color: #f0fff4;
+}
+.text-green-400 {
+    color: #48bb78;
+}
+.text-green-700 {
+    color: #2f855a;
+}
+.text-green-800 {
+    color: #276749;
+}
+
+/* Danger */
+.bg-red-50 {
+    background-color: #fff5f5;
+}
+.text-red-400 {
+    color: #fc8181;
+}
+.text-red-700 {
+    color: #e53e3e;
+}
+.text-red-800 {
+    color: #c53030;
+}
+
+p {
+    margin: 0;
 }
