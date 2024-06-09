@@ -82,6 +82,7 @@ const formatLivesAsDrops = (lives) => {
     return '💧'.repeat(lives);
 };
 
+
 const startTimer = (roomCode) => {
     const room = rooms[roomCode];
     if (!room) return;
@@ -92,7 +93,15 @@ const startTimer = (roomCode) => {
 
     const timerDuration = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
     room.timer = setTimeout(async () => {
+        // Decrement user's life
         room.users[room.currentPlayerIndex].lives--;
+
+        // Emit the new event to animate the water gun
+        io.to(roomCode).emit('user lost life', {
+            userId: room.users[room.currentPlayerIndex].id,
+            lives: room.users[room.currentPlayerIndex].lives
+        });
+
         io.to(roomCode).emit('update users', formatUserLives(room.users));
 
         if (room.users[room.currentPlayerIndex].lives <= 0) {
@@ -123,6 +132,7 @@ const startTimer = (roomCode) => {
 
     io.to(roomCode).emit('update timer', timerDuration);
 };
+
 
 const formatUserLives = (users) => {
     return users.map(user => ({

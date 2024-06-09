@@ -1,5 +1,4 @@
-
-# Splash Round
+# 💧 Splash Round 💧
 
 It's a game where you need to enter a word that contains the syllable that the game instructs you to include in your word. If you don't respond in time, you lose a life, and then the round skips, with the last player who has a life winning the game.
 
@@ -24,6 +23,8 @@ npm start
 -  API to verify the word
 -  Timer bar to indicate the time remaining
 -  Up to 4 players
+-  Auto creation of avatar
+-  Lives as water drop 💧
 
 
 ## Demo

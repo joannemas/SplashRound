@@ -31,7 +31,7 @@
                 </div>
             </div>
         </section>
-        
+
         <section id="chat-room" style="display: none;">
             <div id="user-info">
                 <div id="my-player" class="my-player"></div>
@@ -50,23 +50,24 @@
             <div class="playing">
                 <p id="status"></p>
                 <div id="current-player"></div>
-                <input type="text" id="message" placeholder="Votre mot" class="input" disabled >
-                <button class="button--submit" onclick="send()" disabled>Envoyer</button> 
+                <input type="text" id="message" placeholder="Votre mot" class="input" disabled>
+                <button class="button--submit" onclick="send()" disabled>Envoyer</button>
             </div>
 
             <div id="game-info">
                 <p id="syllable"></p>
-                <div id="water-gun">
+                <!-- Water Gun Container -->
+                <div id="water-gun" style="display:none">
                     <img src="./water_gun.png" alt="Pistolet à eau" id="water-gun-img">
-                </div>                
+                </div>
                 <div id="timer-bar-container">
                     <div id="timer-bar"></div>
                 </div>
                 <p id="timer"></p>
             </div>
 
-            
-            
+
+
 
         </section>
     </div>

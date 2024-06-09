@@ -157,7 +157,9 @@ function startTimer(duration) {
 
     timerElement.textContent = `Temps restant: ${timeRemaining}s`;
     timerBar.style.width = '100%';
+    timerBar.style.borderRadius = '30px';
     timerBar.style.backgroundColor = '#83B4FF';
+    timerBar.style.border = '2px solid white';
 
     timerInterval = setInterval(() => {
         timeRemaining -= 1;
@@ -304,12 +306,15 @@ function showAlert(message, type) {
     }, 5000); // Remove alert after 5 seconds
 }
 
-
 function animateWaterGun() {
     const waterGun = document.getElementById('water-gun-img');
-    waterGun.style.transform = 'translateX(-20px)';
-    
-    setTimeout(() => {
-        waterGun.style.transform = 'translateX(0)';
-    }, 200);
+    waterGun.classList.add('shooting');
+
+    // Remove the class after the animation is finished to allow re-triggering
+    waterGun.addEventListener('animationend', () => {
+        waterGun.classList.remove('shooting');
+    }, { once: true });
 }
+
+// Call animateWaterGun function when the user clicks on the water-gun for demonstration
+document.getElementById('water-gun').addEventListener('click', animateWaterGun);
