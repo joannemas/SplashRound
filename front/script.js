@@ -157,6 +157,7 @@ function startTimer(duration) {
 
     timerElement.textContent = `Temps restant: ${timeRemaining}s`;
     timerBar.style.width = '100%';
+    timerBar.style.backgroundColor = '#83B4FF';
 
     timerInterval = setInterval(() => {
         timeRemaining -= 1;
@@ -250,85 +251,59 @@ function grayscaleDeadPlayers(users) {
 
 function showAlert(message, type) {
     const alertContainer = document.createElement('div');
-    alertContainer.classList.add('rounded-md', 'p-4', 'mb-4');
-
+    alertContainer.classList.add('alert');
+    
     switch(type) {
         case 'success':
-            alertContainer.classList.add('bg-green-50', 'text-green-700');
+            alertContainer.classList.add('alert-success');
             alertContainer.innerHTML = `
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-7.707a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 011.414 1.414L10 14.414l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium">Success</h3>
-                        <div class="mt-2 text-sm">
-                            <p>${message}</p>
-                        </div>
-                    </div>
+                <div class="icon"><svg class="h-6 w-6 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-7.707a1 1 0 011.414 0L10 11.586l2.293-2.293a1 1 0 011.414 1.414L10 14.414l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></div>
+                <div>
+                    <h3>Success</h3>
+                    <p>${message}</p>
                 </div>`;
             break;
         case 'warning':
-            alertContainer.classList.add('bg-yellow-50', 'text-yellow-700');
+            alertContainer.classList.add('alert-warning');
             alertContainer.innerHTML = `
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium">Warning</h3>
-                        <div class="mt-2 text-sm">
-                            <p>${message}</p>
-                        </div>
-                    </div>
+                <div class="icon"><svg class="h-6 w-6 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd"/></svg></div>
+                <div>
+                    <h3>Warning</h3>
+                    <p>${message}</p>
                 </div>`;
             break;
         case 'danger':
-            alertContainer.classList.add('bg-red-50', 'text-red-700');
+            alertContainer.classList.add('alert-danger');
             alertContainer.innerHTML = `
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-10.293a1 1 0 011.414 0L10 9.586l2.293-2.293a1 1 0 111.414 1.414L10 12.414l-2.293-2.293a1 1 0 01-1.414-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium">Error</h3>
-                        <div class="mt-2 text-sm">
-                            <p>${message}</p>
-                        </div>
-                    </div>
+                <div class="icon"><svg class="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-10.293a1 1 0 011.414 0L10 9.586l2.293-2.293a1 1 0 111.414 1.414L10 12.414l-2.293-2.293a1 1 0 01-1.414-1.414z" clip-rule="evenodd"/></svg></div>
+                <div>
+                    <h3>Error</h3>
+                    <p>${message}</p>
                 </div>`;
             break;
         case 'info':
         default:
-            alertContainer.classList.add('bg-yellow-50', 'text-yellow-700');
+            alertContainer.classList.add('alert-info');
             alertContainer.innerHTML = `
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium">Information</h3>
-                        <div class="mt-2 text-sm">
-                            <p>${message}</p>
-                        </div>
-                    </div>
+                <div class="icon"><svg class="h-6 w-6 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.684-1.36 3.449 0l6.519 11.608c.763 1.357-.208 3.043-1.725 3.043H3.483c-1.517 0-2.488-1.686-1.725-3.043L8.257 3.099zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-.25-4a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0V9z" clip-rule="evenodd"/></svg></div>
+                <div>
+                    <h3>Information</h3>
+                    <p>${message}</p>
                 </div>`;
             break;
     }
 
     document.getElementById('alert-container').appendChild(alertContainer);
+
     setTimeout(() => {
-        alertContainer.remove();
+        alertContainer.classList.add('hidden');
+        setTimeout(() => {
+            alertContainer.remove();
+        }, 500); // Time to finish the transition
     }, 5000); // Remove alert after 5 seconds
 }
+
 
 function animateWaterGun() {
     const waterGun = document.getElementById('water-gun-img');
