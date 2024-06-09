@@ -4,18 +4,24 @@ let username = '';
 let timerInterval;
 let currentPlayer = '';
 let creator = false;
+let users = [];
 
 socket.on('connect', () => {
     console.log('Connected');
 });
 
-socket.on('room users', (users) => {
-    updateUsers(users);
-    grayscaleDeadPlayers(users);
+socket.on('room users', (receivedUsers) => {
+    console.log('Users reçus de "room users":', receivedUsers);
+    setUsers(receivedUsers);
+});
+
+socket.on('update users', (receivedUsers) => {
+    console.log('Users reçus de "update users":', receivedUsers);
+    setUsers(receivedUsers);
 });
 
 socket.on('room full', () => {
-    showAlert('Room is full. Please try another room.', 'danger');
+    showAlert('La salle est pleine.', 'danger');
 });
 
 socket.on('room created', (code) => {
@@ -131,6 +137,14 @@ function updateStatus(cp) {
         messageInput.disabled = true;
         sendButton.disabled = true;
     }
+
+    currentPlayer = cp;
+    console.log('Updating users in updateStatus:', users);
+    if (Array.isArray(users)) {
+        updateUsers(users);
+    } else {
+        console.error('updateStatus - users n\'est pas un tableau', users);
+    }
 }
 
 function startTimer(duration) {
@@ -155,7 +169,23 @@ function startTimer(duration) {
     }, 1000);
 }
 
+function setUsers(newUsers) {
+    if (Array.isArray(newUsers)) {
+        users = newUsers;
+        console.log('Nouv users:', users);
+        updateUsers(users);
+    } else {
+        console.error('setUsers - newUsers n\'est pas un tableau', newUsers);
+    }
+}
+
 function updateUsers(users) {
+    console.log('Updating users:', users);
+    if (!Array.isArray(users)) {
+        console.error('updateUsers - users n\'est pas un tableau');
+        return;
+    }
+
     const userList = document.getElementById('users');
     const myUserDiv = document.getElementById('my-player');
     const myUser = users.find(user => user.name === username);
@@ -167,6 +197,10 @@ function updateUsers(users) {
         const userItem = document.createElement('li');
         userItem.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         
+        if (user.lives === 0) {
+            userItem.classList.add('grayscale');
+        }
+        
         if (myUser === user) {
             myUserDiv.innerHTML = `<img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
         } else {
@@ -174,24 +208,41 @@ function updateUsers(users) {
         }
     });
 
+    const currentPlayerDiv = document.getElementById('current-player');
     const playersList = document.getElementById('players');
+
+    currentPlayerDiv.innerHTML = '';
     playersList.innerHTML = '';
+
     users.forEach(user => {
         const userItem = document.createElement('li');
-        userItem.innerHTML = `<p>${user.lives}</p><img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;"> <p>${user.name}</p>`;
+        userItem.innerHTML = `
+            <p>${user.lives}</p>
+            <img src="./assets/${user.avatar}" alt="Avatar de ${user.name}" style="width: 100px;">
+            <p>${user.name}</p>
+        `;
+        if (user.lives === 0) {
+            userItem.classList.add('grayscale');
+        }
         if (user.name === currentPlayer) {
-            document.getElementById('current-player').innerHTML = userItem.innerHTML;
+            currentPlayerDiv.innerHTML = userItem.innerHTML;
         } else {
             playersList.appendChild(userItem);
         }
     });
+
+    grayscaleDeadPlayers(users);
 }
 
 function grayscaleDeadPlayers(users) {
-    users.forEach(user => {
-        const userElement = document.querySelector(`#players li img[alt='Avatar de ${user.name}']`);
-        if (userElement && user.lives === 0) {
-            userElement.parentElement.classList.add('grayscale');
+    const playersListItems = document.querySelectorAll('#players li');
+    playersListItems.forEach(item => {
+        const playerName = item.querySelector('p:last-of-type').textContent;
+        const player = users.find(user => user.name === playerName);
+        if (player && player.lives === "") {
+            item.classList.add('grayscale');
+        } else {
+            item.classList.remove('grayscale');
         }
     });
 }

@@ -153,22 +153,22 @@ h2 {
     margin: 0 10px;
 }
 
-#players li {
+#players li, #current-player {
     width: min-content;
     margin-bottom: 20px;
 }
 
-#players p {
+#players p, #current-player p {
     margin-bottom: 0px;
 }
 
-#users li img, #my-player img, #players li img {
+#users li img, #my-player img, #players li img, #current-player img {
     width: 100px;
     border: 5px white solid;
     border-radius: 20px;
 }
 
-#users p, #my-player p, #players li p {
+#users p, #my-player p, #players li p, #current-player p {
     margin-top: 2px;
     text-align: center;
     font-family: Titan One;
