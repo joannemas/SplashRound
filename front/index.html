@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div id="container">
         <section id="connexion">
             <div id="create-room">
                 <h2>Commencer une partie ?</h2>
@@ -44,28 +44,34 @@
         </section>
 
         <section id="game-room" style="display: none;">
-            <div id="game-info">
+
+            <ul id="players"></ul>
+
+            <div class="playing">
                 <p id="status"></p>
+                <div id="current-player"></div>
+                <input type="text" id="message" placeholder="Votre mot" class="input" disabled >
+                <button class="button--submit" onclick="send()" disabled>Envoyer</button> 
+            </div>
+
+            <div id="game-info">
                 <p id="syllable"></p>
+                <div id="water-gun">
+                    <img src="./water_gun.png" alt="Pistolet à eau" id="water-gun-img">
+                </div>                
                 <div id="timer-bar-container">
                     <div id="timer-bar"></div>
                 </div>
                 <p id="timer"></p>
             </div>
 
-            <div>
-                <div id="current-player"></div>
-                <input type="text" id="message" placeholder="Votre mot" disabled>
-                <button onclick="send()" disabled>Envoyer</button> 
-            </div>
             
-            <ul id="players"></ul>
+            
+
         </section>
     </div>
     <div id="alert-container"></div>
-    <div id="water-gun">
-        <img src="./water_gun.png" alt="Pistolet à eau" id="water-gun-img">
-    </div>
+
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>

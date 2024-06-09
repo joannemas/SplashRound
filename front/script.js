@@ -48,7 +48,8 @@ socket.on('game start', ({ syllable, currentPlayer: cp, timer }) => {
     updateStatus(currentPlayer);
     startTimer(timer);
     document.getElementById('chat-room').style.display = 'none';
-    document.getElementById('game-room').style.display = 'block';
+    document.getElementById('game-room').style.display = 'flex';
+    document.getElementById('container').style.maxWidth = '900px';
     document.getElementById('water-gun').style.display = 'block';
 });
 

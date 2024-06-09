@@ -11,7 +11,7 @@ body {
     box-sizing: border-box;
 }
 
-.container {
+#container {
     padding: 20px;
     border-radius: 8px;
     max-width: 600px;
@@ -253,4 +253,27 @@ h2 {
 #water-gun-img {
     width: 250px;
     transition: transform 0.2s ease;
+}
+
+
+#game-room {
+    display: flex;
+    justify-content: space-between;
+}
+
+.playing, #game-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#syllable {
+    font-size: 2rem;
+    font-family: "Titan One", sans-serif;
+}
+
+#status {
+    font-family: "Titan One", sans-serif;
+    color: #FF7F3E;
 }
